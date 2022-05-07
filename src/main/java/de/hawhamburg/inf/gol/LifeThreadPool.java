@@ -48,7 +48,8 @@ public class LifeThreadPool {
      */
     public void joinAndExit() throws InterruptedException {
         // TODO
-    
+    }
+        
     /**
      * Adds a task to the queue of this pool.
      * 
