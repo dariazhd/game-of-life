@@ -29,7 +29,8 @@ public class LifeThread extends Thread {
     @Override
     public void run() {
         while (!isInterrupted) {
-            // TODO
+            pool.start();
+            //TODO
         }
     }
 }

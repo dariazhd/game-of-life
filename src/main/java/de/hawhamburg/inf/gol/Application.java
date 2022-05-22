@@ -1,8 +1,13 @@
 package de.hawhamburg.inf.gol;
 
+import static java.lang.Math.random;
+import static java.lang.StrictMath.random;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -32,11 +37,13 @@ public class Application {
      * 
      * @param p Cell alive probability threshold.
      * @return 
-     */
+     */  
+    
     private static Stream<Cell> createCellStream(float p) {
-        // TODO
-        
-        return null; // FIXME
+        Stream<Cell> cells = IntStream
+                .range(0, Integer.MAX_VALUE)
+                .mapToObj(x -> new Cell(getCellStatus(p)));
+        return cells;
     }
     
     public static void main(String[] args) {
@@ -51,18 +58,23 @@ public class Application {
         // Create and start a LifeThreadPool with 50 threads
         LifeThreadPool pool = new LifeThreadPool(50);
         pool.start();
-        
-        while (true) {
+        List<Cell> cells = cellStream.toList();
+        int count = 0;
+        while (true) {            
             Life life = new Life(playground);
             for (int xi = 0; xi < DIM_X; xi++) {
                 for (int yi = 0; yi < DIM_Y; yi++) {
-                                       
-                    // Submit new life.process() call as runable to the pool
-                    // TODO
-                    
+                    final int x = xi;
+                    final int y = yi;    
+                    final int c = count;    
+                    pool.submit(() -> {
+                          life.process(cells.get(c), x, y);                          
+                      });   
+                      count++;
                 }
             }
-
+              LifeThread lf = new LifeThread(pool);
+              lf.run();
             // Wait for all threads to finish this generation
             // TODO
             
@@ -77,5 +89,14 @@ public class Application {
            // TODO
         }
 
+    }
+    
+     static int getCellStatus(float p) {
+        Random r = new Random();
+        float random = (float) (0.0 + r.nextFloat() * (1.0 - 0.0));        
+        if (random > p) {
+            return 0;
+        }  
+        return 1;
     }
 }
