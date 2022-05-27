@@ -1,5 +1,6 @@
 package de.hawhamburg.inf.gol;
 
+import static de.hawhamburg.inf.gol.Application.SLEEP;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
  */
 public class LifeThreadPool {
     /* Unsynchronized Queue of Runnables */
-    private final Queue<Runnable> tasks = new LinkedList<>();
+    public final Queue<Runnable> tasks = new LinkedList<>();
     
     /* Number of threads managed by this pool */
     private final int numThreads;
@@ -31,8 +32,9 @@ public class LifeThreadPool {
      * @throws InterruptedException 
      */
     public void barrier() throws InterruptedException {
-        tasks.stream().forEach(x -> x.);
-        // TODO
+        while (!tasks.isEmpty()) {
+            
+        }
     }
     
     /**
@@ -49,7 +51,13 @@ public class LifeThreadPool {
      * @throws InterruptedException 
      */
     public void joinAndExit() throws InterruptedException {
-        // TODO
+        /*try {
+               // Thread.sleep(500);
+            } catch (InterruptedException ie) {
+                System.err.println("Application InterruptedException");
+            }*/
+        barrier();
+        interrupt();
     }
         
     /**
@@ -68,7 +76,8 @@ public class LifeThreadPool {
      * @return Next task from the pool queue
      * @throws InterruptedException 
      */
-    public Runnable nextTask() throws InterruptedException {        
+    public Runnable nextTask() throws InterruptedException {  
+       while (tasks.isEmpty()) {}
        return tasks.poll();
     }
     
@@ -78,6 +87,7 @@ public class LifeThreadPool {
     public void start() {
         for (int i = 0; i < numThreads; i++) {
             threads[i] = new LifeThread(this);
-        }
+        }        
+        Arrays.stream(threads).forEach(t -> t.start());
     }
 }

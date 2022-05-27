@@ -2,10 +2,13 @@ package de.hawhamburg.inf.gol;
 
 import static java.lang.Math.random;
 import static java.lang.StrictMath.random;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -41,14 +44,15 @@ public class Application {
     
     private static Stream<Cell> createCellStream(float p) {
         Stream<Cell> cells = IntStream
-                .range(0, Integer.MAX_VALUE)
+                .range(0, 200000)
                 .mapToObj(x -> new Cell(getCellStatus(p)));
         return cells;
     }
     
     public static void main(String[] args) {
         Stream<Cell> cellStream = createCellStream(ALIVE_PROBABILITY);
-        Playground playground = new Playground(DIM_X, DIM_Y, cellStream);
+        Cell[] cells = cellStream.toArray(size -> new Cell[size]);
+        Playground playground = new Playground(DIM_X, DIM_Y, Arrays.stream(cells));
         
         // Create and show the application window
         ApplicationFrame window = new ApplicationFrame();
@@ -57,10 +61,10 @@ public class Application {
         
         // Create and start a LifeThreadPool with 50 threads
         LifeThreadPool pool = new LifeThreadPool(50);
-        pool.start();
-        List<Cell> cells = cellStream.toList();
-        int count = 0;
-        while (true) {            
+        pool.start();       
+        
+        while (true) {  
+            int count = 0;
             Life life = new Life(playground);
             for (int xi = 0; xi < DIM_X; xi++) {
                 for (int yi = 0; yi < DIM_Y; yi++) {
@@ -68,16 +72,21 @@ public class Application {
                     final int y = yi;    
                     final int c = count;    
                     pool.submit(() -> {
-                          life.process(cells.get(c), x, y);                          
+                          life.process(cells[c], x, y);                          
                       });   
                       count++;
                 }
             }
-              LifeThread lf = new LifeThread(pool);
-              lf.run();
+              pool.start();
             // Wait for all threads to finish this generation
             // TODO
-            
+              try {
+                    System.out.println("at join start");
+                    pool.joinAndExit();
+                    System.out.println("at join end");
+              } catch (InterruptedException ie) {
+                  System.err.println("Application InterruptedException");
+              }
             // Submit switch to next generation for each cell and force a
             // window repaint to update the graphics
             pool.submit(() -> {
@@ -87,8 +96,12 @@ public class Application {
             
             // Wait SLEEP milliseconds until the next generation
            // TODO
+            try {
+                Thread.sleep(SLEEP);
+            } catch (InterruptedException ie) {
+                System.err.println("Application InterruptedException");
+            }
         }
-
     }
     
      static int getCellStatus(float p) {
