@@ -28,7 +28,7 @@ public class Application {
     public static final int DIM_Y = 200;
     
     /* Probability threshold that a cell is initially being created */
-    public static final float ALIVE_PROBABILITY = 0.3125f;
+    public static final float ALIVE_PROBABILITY = 0.314f;
     
     /* Sleep time between every generation in milliseconds */
     public static final int SLEEP = 200;
@@ -44,8 +44,8 @@ public class Application {
     
     private static Stream<Cell> createCellStream(float p) {
         Stream<Cell> cells = IntStream
-                .range(0, 200000)
-                .mapToObj(x -> new Cell(getCellStatus(p)));
+                .range(Integer.MIN_VALUE, Integer.MAX_VALUE)
+                .mapToObj(x -> new Cell((new Random()).nextFloat() > p ? 0 : 1));
         return cells;
     }
     
@@ -100,14 +100,5 @@ public class Application {
                 System.err.println("Application InterruptedException");
             }
         }
-    }
-    
-     static int getCellStatus(float p) {
-        Random r = new Random();
-        float random = (float) (0.0 + r.nextFloat() * (1.0 - 0.0));        
-        if (random > p) {
-            return 0;
-        }  
-        return 1;
     }
 }

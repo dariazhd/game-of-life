@@ -34,16 +34,13 @@ public class LifeThreadPool {
     public void barrier() throws InterruptedException {
         while (!tasks.isEmpty()) {
             try {
-                Thread.sleep(1);
+                Thread.sleep(100);
             } catch (InterruptedException ie) {
                 System.err.println("Application InterruptedException");
             }	  
         }
     }
     
-    public void emptyQueue() {
-		tasks.clear();
-    }
     /**
      * Calls interrupt() on every thread in this pool.
      */
