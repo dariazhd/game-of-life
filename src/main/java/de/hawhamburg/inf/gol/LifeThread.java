@@ -32,7 +32,7 @@ public class LifeThread extends Thread {
             try {
                    pool.nextTask().run();
             } catch (InterruptedException ie) {
-                System.err.println("LifeThread InterruptedException");
+                System.err.println(Thread.currentThread() + ": " + ie.getMessage());
             }
         }
     }

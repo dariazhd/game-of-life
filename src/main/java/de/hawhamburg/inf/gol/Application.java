@@ -51,8 +51,7 @@ public class Application {
     
     public static void main(String[] args) {
         Stream<Cell> cellStream = createCellStream(ALIVE_PROBABILITY);
-        Cell[] cells = cellStream.toArray(size -> new Cell[size]);
-        Playground playground = new Playground(DIM_X, DIM_Y, Arrays.stream(cells));
+        Playground playground = new Playground(DIM_X, DIM_Y, cellStream);
         
         // Create and show the application window
         ApplicationFrame window = new ApplicationFrame();
@@ -66,13 +65,14 @@ public class Application {
         while (true) {  
             int count = 0;
             Life life = new Life(playground);
+            List <Cell> cells = playground.asList();
             for (int xi = 0; xi < DIM_X; xi++) {
                 for (int yi = 0; yi < DIM_Y; yi++) {
                     final int x = xi;
                     final int y = yi;    
                     final int c = count;    
                     pool.submit(() -> {
-                          life.process(cells[c], x, y);                          
+                          life.process(cells.get(c), x, y);                          
                       });   
                       count++;
                 }
@@ -81,9 +81,7 @@ public class Application {
             // Wait for all threads to finish this generation
             // TODO
               try {
-                    System.out.println("at join start");
                     pool.joinAndExit();
-                    System.out.println("at join end");
               } catch (InterruptedException ie) {
                   System.err.println("Application InterruptedException");
               }

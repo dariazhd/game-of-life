@@ -33,10 +33,17 @@ public class LifeThreadPool {
      */
     public void barrier() throws InterruptedException {
         while (!tasks.isEmpty()) {
-            
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException ie) {
+                System.err.println("Application InterruptedException");
+            }	  
         }
     }
     
+    public void emptyQueue() {
+		tasks.clear();
+    }
     /**
      * Calls interrupt() on every thread in this pool.
      */
@@ -51,11 +58,6 @@ public class LifeThreadPool {
      * @throws InterruptedException 
      */
     public void joinAndExit() throws InterruptedException {
-        /*try {
-               // Thread.sleep(500);
-            } catch (InterruptedException ie) {
-                System.err.println("Application InterruptedException");
-            }*/
         barrier();
         interrupt();
     }
@@ -77,8 +79,12 @@ public class LifeThreadPool {
      * @throws InterruptedException 
      */
     public Runnable nextTask() throws InterruptedException {  
-       while (tasks.isEmpty()) {}
-       return tasks.poll();
+        synchronized(tasks) {
+            while (tasks.isEmpty()) {
+                tasks.wait();
+            }
+            return tasks.poll();
+        }
     }
     
     /**
